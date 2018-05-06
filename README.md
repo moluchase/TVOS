@@ -4,9 +4,18 @@
 
 
 
+
+
+
+[TOC]
+
+<p align="right">**项目负责人：**</p>
+
+<p align="right">**项目开发人员：**</p>
+
 <p align="right">**项目持续周期：**</p>
 
-
+<p align="right">**版本：v1.2;  时间：17-08-28**</p>
 
 # TVOS项目概要设计说明书
 
@@ -22,7 +31,7 @@
 
 ​    用户：tvos
 
-​    密码：              *****************
+​    密码：
 
 
 
@@ -388,7 +397,7 @@ admin作为后台管理界面，提供给超级用户修改数据库的权限
 
    用户名:tvos
 
-   密码：**********
+   密码：
 
 10. 安装nginx，管理进程的工具
 
@@ -730,3 +739,434 @@ ubuntu系统下，输入`crontab -e`进行编辑，其中crontab命令格式为�
 
 ```shell
 * * * * * user command
+分时日月周  用户  命令
+
+#每周一的8点30更新一次
+30 8 * * 1 root python3 文件路径/update_data.py
+
+#如果要将输出的日志也记录下来，可以在任意目录下新建log文件(/opt/tvos/update.log)
+30 8 * * 1 root python3 文件路径/update_data.py >> /opt/tvos/update.log
+```
+
+参考http://www.jb51.net/article/120484.htm?utm_source=debugrun&utm_medium=referral
+
+## 3 后记
+
+### 3.1错误与解决
+
+#### 3.1.1 Django中静态文件路径
+
+比如把`echarts.min.js`文件放置在templates下和index.html同级目录，按理直接使用
+
+```html
+<script src="echarts.min.js"></script>
+```
+
+便可，但是访问时却显示：Not Found charts.min.js
+
+**解决：** 在app目录下（这个随意，会自动查找static文件夹）新建static文件夹，然后将js文件存放在其中，再在settings.py文件中声明static目录：
+
+```python
+STATIC_PATH=os.path.join(os.path.dirname(__file__),'static').replace('\\','/')
+```
+
+在index.html中使用
+
+```html
+<script src="/static/echarts.min.js"></script>
+```
+
+即可
+
+#### 3.1.2 Python 内存溢出问题
+
+在导入tvos_info表的时候，服务器内存不够，导致抛MemoryError，最后是将变量存入txt文件中，程序一行一行的取出来，再插入到数据库
+
+#### 3.1.3 admin登入界面静态文件丢失
+
+1. 首先找到admin的静态文件目录:`/usr/local/lib/python3.4/dist-packages/django/admin/static/`
+
+   使用下面方法查看：终端进入python
+
+   ```python
+   >>>import django
+   >>>django.__file__
+   ```
+
+   一般在contrib目录下
+
+2. 然后再settings.py中的STATICFILES_DIRS下添加上面的路径
+
+3. 在/ect/apache2/sites-enabled/mysite.conf文件中添加静态路径（即STATIC_ROOT的绝对路径）
+
+#### 3.1.4 mysql远程连接
+
+需要做两部分修改：
+
+1. 修改被连接的数据库的mysql数据库下的user表，将其user=root且Host=localhost的记录修改为Host=%，表示允许所有ip访问
+
+   并执行FLUSH PRIVILEGES 生效
+
+2. 修改etc/mysql目录下的my.cnf文件，将其中的bind-address=127.0.0.1修改为0.0.0.0，即允许所有的ip访问
+
+#### 3.1.5 Apache问题 
+
+**apache AH01630: client denied by server configuration错误解决方法**
+
+出现这个错误的原因是，apache2.4 与 apache2.2 的虚拟主机配置写法不同导致
+
+### 3.2 tips
+
+#### 3.2.1 CHAR  and  VARCHAR
+
+在MySQL中
+
+数据类型CHAR表示定长，一般存储身份证号，手机号等，如果不足，会用空格填充，效率极高
+
+数据类型VARCHAR表示不定长，会有一个字节来存储数据的长度，不足不进行填充，效率低，适合变化长度的数据类型
+
+#### 3.2.2 向sql语句中传递参数
+
+传递一条数据：
+
+```mysql
+sql='INSERT INTO record_table VALUES ("%d","%s","%s","%s","%d","%d","%s")'
+cursor.execute(sql%(number,project,branch,updated,insertions,deletions,owner))
+```
+
+批量导入（一条insert语句插入多条记录，效率高）：
+
+```mysql
+sql='INSERT INTO record_table VALUES %s'%'(7,"tvos/das","master","2009-09-17",22,33,"dang")'
+```
+
+这里直接使用executemany效率并不是很高
+
+参考：[https://github.com/TsaiZehua/PyMySQL](https://github.com/TsaiZehua/PyMySQL)
+
+#### 3.2.3 mysql语句
+
+desc record_table  显示表结构
+
+alter table record_table add column company varchar(16) not null;  添加列
+
+删除表时，如果该表有外键约束，是删除不掉的，需要使用下面语句去除约束：
+
+```
+set foreign_key_checks=0
+```
+
+
+
+### 3.3 后期安排
+
+1. tvos_info 表的分析问题
+2. Docker
+
+
+
+## 4 参考
+
+【1】[ Django官方文档](https://docs.djangoproject.com/en/1.11/)
+
+【2】[自强学堂 Django基础教程](http://code.ziqiangxuetang.com/django/django-tutorial.html)
+
+【3】[ECharts](http://echarts.baidu.com/index.html)
+
+【4】[Django+Vue](https://zhuanlan.zhihu.com/p/24893786)
+
+【5】[跨域](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS)
+
+
+
+## 5 附录
+
+详细数据与代码均在服务器上
+
+### 5.1 数据获取部分代码
+
+#### 5.1.1 获取三个版块的json文件
+
+```python
+import json
+import requests
+
+
+#获取三个版块的json文件
+def get_record_data():
+    #动态抓包获取各版块的json文件网址,存储在字典中
+    section_dict={}
+    section_dict['open']='http://120.25.200.39:8081/changes/?n=25&O=81'
+    section_dict['merged']='http://120.25.200.39:8081/changes/?q=status:merged&n=25&O=81'
+    section_dict['abandoned']='http://120.25.200.39:8081/changes/?q=status:abandoned&n=25&O=81'
+
+    filename_list=[]#获取记录的文件名
+
+    #遍历访问网址获取数据，以json存储在data中
+    for key ,value in section_dict.items():
+        flag = 1
+        num = 0
+        while flag:
+            json_open = requests.get(value + "&S=" + str(num)).text#获取文件的文本形式
+            json_open = json_open.strip().split(']}\'\n')[1]#去除文本中的第一行
+            #这里小于5表示空，即next到头了，结束next；否则将数据写入文件
+            if len(json_open) < 5:
+                flag = 0
+            else:
+                with open('data/record/'+key+'_' + str(num) + '.json', 'w') as f:
+                    f.write(json_open)
+                    filename_list.append(key+'_'+str(num))
+                    print(key+str(num)+"has wirtten !")
+            num += 25
+    return filename_list
+```
+
+#### 5.1.2 获取记录文件中对应的详细json文件
+
+```python
+#获取记录详细信息
+def get_record_info_data(filename_list):
+    for filename in filename_list:
+        with open('data/record/'+filename+'.json','r') as f:
+            records_json=json.load(f)
+        for record in records_json:
+            number=record['_number']
+            print(number)
+            url_str2='http://120.25.200.39:8081/changes/'+str(number)+'/detail?O=404'
+            detail=requests.get(url_str2).text
+            detail = detail.strip().split(']}\'\n')  # 去除文本中的第一行
+            if len(detail)<2:continue
+            detail=detail[1]
+            detail='['+detail+']'
+            with open ('data/info/'+filename.split('_')[0]+'/detail/detail'+str(number)+'.json','w') as f:
+                f.write(detail)
+            with open ('data/info/'+filename.split('_')[0]+'/detail/detail'+str(number)+'.json','r') as f:
+                detail=json.load(f)
+                print(filename+"detail"+str(number)+"has written!")
+            revision=detail[0]['current_revision']
+
+            url_str1 = 'http://120.25.200.39:8081/changes/'+str(number)+'/revisions/'+str(revision)+'/files'
+            info=requests.get(url_str1).text
+            info = info.strip().split(']}\'\n') # 去除文本中的第一行
+            if len(info)<2:continue
+            info=info[1]
+            with open('data/info/' + filename.split('_')[0] +"/" + str(number) + '.json','w') as f:
+                f.write(info)
+                print(filename+str(number)+"has written!")
+```
+
+### 5.2 数据存储部分代码
+
+#### 5.2.1 tvos_record表的数据插入
+
+```python
+#将全部record数据插入到tvos_record中
+def insert_record_with_json():
+    filelist = os.listdir('data/record')  # 获取data/record目录下的全部文件名
+    batch_list=[]#存放记录
+    db=connect_db()#连接数据库
+    for filename in filelist:
+        with open('data/record/' + str(filename), 'r') as f:
+            record_data = json.load(f)
+        #获取section
+        if re.match(r'^abandoned.*',filename):section='abandoned'
+        elif re.match(r'^merged.*',filename):section='merged'
+        else:section='open'
+
+        if len(record_data) < 1: continue
+        for record in record_data:
+            record_list=[]
+            number=record['_number']
+            project = record['project']
+            branch = record['branch']
+            updated= record['updated'][:10]
+            insertions=record['insertions']
+            deletions=record['deletions']
+            owner=record['owner']['name']
+            company=re.findall(r'@([a-zA-Z\-]+)',record['owner']['email'])
+            if len(company)==0:company='None'#找不到公司名，则用None代替
+            else:company=company[0]
+            record_list.append(number)
+            record_list.append(project)
+            record_list.append(branch)
+            record_list.append(updated)
+            record_list.append(insertions)
+            record_list.append(deletions)
+            record_list.append(owner)
+            record_list.append(company)
+            record_list.append(section)
+            batch_list.append(record_list)
+
+            # 一次insert插入20条记录
+            if len(batch_list) >=20:
+                insert_db_batch(db, 'tvos_record',batch_list)
+                batch_list = []
+
+    if len(batch_list)>=1:
+        insert_db_batch(db,'tvos_record', batch_list)
+    close_db(db)
+
+```
+
+####5.2.2 tvos_info表的数据插入
+
+```python
+#将全部info数据插入到tvos_info中
+def insert_info_with_json():
+    dir=['open','merged','abandoned']
+    insertions_dict={}
+    deletions_dict={}
+    num_dict={}
+    db=connect_db()
+    for d in dir:
+        filelist = os.listdir('data/info/'+d)  # 获取data/record目录下的全部文件名
+
+        for filename in filelist:
+            num=re.findall(r'([0-9]+).json$',filename)#获取json文件
+            if len(num)!=0:
+                #查找number对应的project
+                sql='SELECT project FROM tvos_record WHERE number='+num[0];
+                cursor=db.cursor()
+                cursor.execute(sql)
+                result =cursor.fetchall()
+                for row in result:
+                    project=row[0]
+
+                with open('data/info/' +d+'/'+ filename, 'r') as f:
+                    info_data = json.load(f)
+                #读取json中的路径以及对应的insert和delete
+                for info in info_data:
+                    project_filepath=project+'#'+info #以#为分隔符，将项目名和路径分开
+                    if project_filepath not in num_dict.keys():
+                        num_dict[project_filepath]=0
+                        deletions_dict[project_filepath]=0
+                        insertions_dict[project_filepath]=0
+                    num_dict[project_filepath]+=1
+                    if 'lines_inserted' in info_data[info]:
+                        insertions_dict[project_filepath]+=info_data[info]['lines_inserted']
+                    if 'lines_deleted' in info_data[info]:
+                        deletions_dict[project_filepath]+=info_data[info]['lines_deleted']
+
+    batch_list=[]
+    info_list=[]
+    id=0
+    for profile in num_dict.keys():
+        pro_file=profile.split('#')
+        if num_dict[profile]<2:continue   #修改次数小于2的记录不添加到数据库
+        id+=1
+        #按照tvos_info表插入一条记录
+        info_list.append(id)#id
+        info_list.append(pro_file[1])#filepath
+        info_list.append(pro_file[0])#project
+        info_list.append(insertions_dict[profile])#insertions
+        info_list.append(deletions_dict[profile])#deletions
+        info_list.append(num_dict[profile])#num
+        batch_list.append(info_list)
+        info_list=[]
+        # 一次insert插入20条记录
+        if len(batch_list) >= 20:
+            insert_db_batch(db,'tvos_info', batch_list)
+            batch_list = []
+
+    if len(batch_list) >= 1:
+        insert_db_batch(db,'tvos_info', batch_list)
+    close_db(db)
+```
+
+### 5.3 Django后台搭建部分代码
+
+#### 5.3.1 view.py的部分代码
+
+各版块数据获取
+
+```python
+#django模板会自动找到app下面的templates文件夹中的模板文件
+#显示字符串
+def index(request):
+    sec=request.GET.get('section')
+    if(sec==None or sec=='all'):
+        record=Record.objects.all()#获取全部记录
+    else:
+        record = Record.objects.filter(section=sec)#获取各版块的记录
+    
+    project_dict={}
+    owner_dict={}
+    company_dict={}
+    date_list=[]
+    insert_list=[]
+    delete_list=[]
+    project_name=[]
+    project_num=[]
+    owner_name=[]
+    owner_num=[]
+    company_name=[]
+    company_num=[]
+
+    #读取数据
+    for row in record:
+        if row.project not in project_dict.keys():
+            project_dict[row.project]=0
+        if row.owner not in owner_dict.keys():
+            owner_dict[row.owner]=0
+        if row.company not in company_dict.keys():
+            company_dict[row.company]=0
+        project_dict[row.project]+=1
+        owner_dict[row.owner]+=1
+        company_dict[row.company]+=1
+        date_list.append(str(row.updated))
+        insert_list.append(row.insertions)
+        delete_list.append(row.deletions)
+
+    for key,value in project_dict.items():
+        project_name.append(key)
+        project_num.append(value)
+    for key,value in owner_dict.items():
+        owner_name.append(key)
+        owner_num.append(value)
+    for key,value in company_dict.items():
+        company_name.append(key)
+        company_num.append(value)
+
+    return HttpResponse(json.dumps({'dateList': date_list,
+                   'insertList': insert_list, 'deleteList': delete_list,
+                   'ownerName': owner_name, 'ownerNum': owner_num,
+                   'companyName': company_name, 'companyNum': company_num,
+                   'projectName': project_name, 'projectNum': project_num}))
+```
+
+#### 5.3.2 admin.py
+
+```python
+from django.contrib import admin
+
+from tvos.models import Record,Info
+# Register your models here.
+
+def make_published():
+    #这部分路径需要修改
+    os.system("python3 /Users/XX/floder/07practiceProject/TVOS/code/tvos1/update_data.py")
+make_published.short_description="update Mysql"
+
+#这个类表示网页中Record条目如何显示
+class RecordAdmin(admin.ModelAdmin):
+    #需要显示的字段
+    list_display = ['number','project','branch','updated','insertions','deletions','owner','company','section']
+    ordering=['-updated']#排序依据
+    actions=[make_published]#点击行为
+
+#Info
+class InfoAdmin(admin.ModelAdmin):
+    list_display = ['id','filepath','project','insertions','deletions','num']
+    ordering = ['-num']
+    actions = [make_published]
+#将上面的类添加进来
+admin.site.register(Record,RecordAdmin)
+admin.site.register(Info,InfoAdmin)
+```
+
+
+
+
+
+
+
