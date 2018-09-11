@@ -53,7 +53,7 @@ Django+MySQL+ECharts+Vue
 
 #### 1.3.2 具体request-response图
 
-![tvosseq](/Users/pengxia/floder/07practiceProject/TVOS/img/tvosseq.tiff)
+![tvosseq](img/tvosseq.tiff)
 
 ### 1.4 代码组成
 
