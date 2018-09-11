@@ -1,3 +1,10 @@
+# TVOS
+使用Django搭建的数据可视化项目
+
+
+
+
+
 
 
 [TOC]
@@ -16,15 +23,15 @@
 
 ### 1.1目的
 
-分析http://120.25.200.39:8081上的数据，并将信息可视化展现在搭建的网址上
+分析http://120.25.200:8081上的数据，并将信息可视化展现在搭建的网址上
 
 超级用户，可以直接修改数据库信息
 
-​    访问网址：http://182.61.13.156/admin/ 
+​    访问网址：http://182.61.136/admin/ 
 
 ​    用户：tvos
 
-​    密码：tovs123645
+​    密码：
 
 
 
@@ -42,11 +49,11 @@ Django+MySQL+ECharts+Vue
 
 #### 1.3.1 系统框架图
 
-![tvos_sys](/Users/pengxia/floder/05note/02program/07github/TVOS/img/tvos_sys.png)
+![TVOSsys01](https://github.com/moluchase/TVOS/raw/master/img/TVOSsys01.tiff)
 
 #### 1.3.2 具体request-response图
 
-![tvos_seq](/Users/pengxia/floder/05note/02program/07github/TVOS/img/tvos_seq.png)
+![tvosseq](https://github.com/moluchase/TVOS/raw/master/img/tvosseq.tiff)
 
 ### 1.4 代码组成
 
@@ -79,15 +86,15 @@ tvos1模块主要是由get_data.py, storage_data.py, operate_mysql.py, update_da
 
 对于open，Merged，Abandoned，显示界面的json文件如下：
 
-- Open       http://120.25.200.39:8081/changes/?n=25&O=81
-- Merged     http://120.25.200.39:8081/changes/?q=status:merged&n=25&O=81
-- Abandoned  http://120.25.200.39:8081/changes/?q=status:abandoned&n=25&O=81
+- Open       http://120.25.209:8081/changes/?n=25&O=81
+- Merged     http://120.25.209:8081/changes/?q=status:merged&n=25&O=81
+- Abandoned  http://120.25.209:8081/changes/?q=status:abandoned&n=25&O=81
 
 #### 2.1.2 记录中详细信息的获取
 
 点击网页上面版块任一条目，进入详细信息，其json文件网址为
 
-http://120.25.200.39:8081/changes/1637/revisions/205f3f9694e931de9779cdbaa82c5bb881751899/files
+http://120.25.209:8081/changes/1637/revisions/205f3f9694e931de9779cdbaa82c5bb881751899/files
 
 分析上面网址，有两个地方是变化的：
 
@@ -97,7 +104,7 @@ http://120.25.200.39:8081/changes/1637/revisions/205f3f9694e931de9779cdbaa82c5bb
 
 - 第二个为commit的编号，通过查看Network中显示的文件，发现在下面的json文件中可获取
 
-​        http://120.25.200.39:8081/changes/1637/detail?O=404
+​        http://120.25.209:8081/changes/1637/detail?O=404
 
 #### 2.1.3 代码实现
 
@@ -113,22 +120,6 @@ http://120.25.200.39:8081/changes/1637/revisions/205f3f9694e931de9779cdbaa82c5bb
 2. 时间-修改量（折线图）：需要的数据是时间，及其对应的代码增加量，代码删除量
 3. 用户-修改条数（条形图）：需要的数据是用户名，及其修改的次数
 4. 公司-修改条数（条形图）：需要的数据是公司名，及其修改的次数
-
-
-
-对应的图部分显示如下：
-
-![屏幕快照 2018-09-11 下午9.02.27](/Users/pengxia/floder/05note/02program/07github/TVOS/img/屏幕快照 2018-09-11 下午9.02.27.png)
-
-![屏幕快照 2018-09-11 下午9.02.45](/Users/pengxia/floder/05note/02program/07github/TVOS/img/屏幕快照 2018-09-11 下午9.02.45.png)
-
-![屏幕快照 2018-09-11 下午9.03.06](/Users/pengxia/floder/05note/02program/07github/TVOS/img/屏幕快照 2018-09-11 下午9.03.06.png)
-
-
-
-
-
-
 
 #### 2.2.2 侧页显示部分
 
@@ -342,7 +333,7 @@ admin作为后台管理界面，提供给超级用户修改数据库的权限
 2. 将tvossite项目克隆到本地
 
    ```
-   git clone http://47.94.222.108:10080/tvos/tvossite.git
+   git clone http://47.94.228:10080/tvos/tvossite.git
    ```
 
 3. 安装Django
@@ -360,7 +351,7 @@ admin作为后台管理界面，提供给超级用户修改数据库的权限
 
    进入mysql的命令是：`mysql -u root -p`    密码为空
 
-   修改密码为123645【密码为空，下面pymysql会报错】
+   修改密码为125【密码为空，下面pymysql会报错】
 
    ```shell
    ..>use mysql;
@@ -406,16 +397,16 @@ admin作为后台管理界面，提供给超级用户修改数据库的权限
 
    用户名:tvos
 
-   密码：tvos123645
+   密码：
 
 10. 安装nginx，管理进程的工具
 
-  ```
-  apt-get install python3-dev nginx
-  pip install supervisor  #可以不用安装，只是方便管理
-  ```
+   ```
+   apt-get install python3-dev nginx
+   pip install supervisor  #可以不用安装，只是方便管理
+   ```
 
-  注意上面的pip，不是pip3，因为python3不支持supervisor，只能用python2
+   注意上面的pip，不是pip3，因为python3不支持supervisor，只能用python2
 
 11. 部署uwsgi
 
@@ -590,11 +581,11 @@ http://jukezhang.com/2014/11/28/Nginx-uWSGI-Django-MySQL/
 
 点击all,abandoned,merged版块所展现的数据
 
-all：http://182.61.13.156/section/?section=all
+all：http://182.61.16/section/?section=all
 
-abandoned：http://182.61.13.156/section/?section=abandoned
+abandoned：http://182.61.56/section/?section=abandoned
 
-merged：http://182.61.13.156/section/?section=merged
+merged：http://182.61.16/section/?section=merged
 
 参数说明
 
@@ -614,7 +605,7 @@ merged：http://182.61.13.156/section/?section=merged
 
 侧栏显示数据
 
-http://182.61.13.156/nav/  （这个中的信息实际上all版块是可以获取的）
+http://182.6156/nav/  （这个中的信息实际上all版块是可以获取的）
 
 参数说明
 
@@ -628,11 +619,11 @@ http://182.61.13.156/nav/  （这个中的信息实际上all版块是可以获�
 
 下面的网址是举例，对应的只需要将后面接得参数修改为项目名，用户名，公司名即可
 
-项目：http://182.61.13.156/navsec/project/?project=TVOS/TVOS2/component/weblink
+项目：http://182.61.6/navsec/project/?project=TVOS/TVOS2/component/weblink
 
-用户：http://182.61.13.156/navsec/owner/?owner=jiamin%20wang
+用户：http://182.61.6/navsec/owner/?owner=jiamin%20wang
 
-公司：http://182.61.13.156/navsec/company/?company=changhong
+公司：http://182.61.6/navsec/company/?company=changhong
 
 项目参数说明（针对项目）
 
@@ -905,9 +896,9 @@ import requests
 def get_record_data():
     #动态抓包获取各版块的json文件网址,存储在字典中
     section_dict={}
-    section_dict['open']='http://120.25.200.39:8081/changes/?n=25&O=81'
-    section_dict['merged']='http://120.25.200.39:8081/changes/?q=status:merged&n=25&O=81'
-    section_dict['abandoned']='http://120.25.200.39:8081/changes/?q=status:abandoned&n=25&O=81'
+    section_dict['open']='http://120.25.200081/changes/?n=25&O=81'
+    section_dict['merged']='http://120.25.9:8081/changes/?q=status:merged&n=25&O=81'
+    section_dict['abandoned']='http://120.0.9:8081/changes/?q=status:abandoned&n=25&O=81'
 
     filename_list=[]#获取记录的文件名
 
