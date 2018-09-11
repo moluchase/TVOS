@@ -121,6 +121,13 @@ http://120.25.209:8081/changes/1637/revisions/205f3f9694e931de9779cdbaa82c5bb881
 3. 用户-修改条数（条形图）：需要的数据是用户名，及其修改的次数
 4. 公司-修改条数（条形图）：需要的数据是公司名，及其修改的次数
 
+
+
+![1](https://github.com/moluchase/TVOS/raw/master/img/屏幕快照 2018-09-11 下午9.02.27.png)
+![2](https://github.com/moluchase/TVOS/raw/master/img/屏幕快照 2018-09-11 下午9.02.45.png)
+![3](https://github.com/moluchase/TVOS/raw/master/img/屏幕快照 2018-09-11 下午9.03.06.png)
+
+
 #### 2.2.2 侧页显示部分
 
 显示项目名，用户名，公司名
