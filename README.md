@@ -49,11 +49,11 @@ Django+MySQL+ECharts+Vue
 
 #### 1.3.1 系统框架图
 
-![TVOSsys01](/Users/pengxia/floder/07practiceProject/TVOS/img/TVOSsys01.tiff)
+![TVOSsys01](https://github.com/moluchase/TVOS/raw/master/img/TVOSsys01.tiff)
 
 #### 1.3.2 具体request-response图
 
-![tvosseq](img/tvosseq.tiff)
+![tvosseq](https://github.com/moluchase/TVOS/raw/master/img/tvosseq.tiff)
 
 ### 1.4 代码组成
 
